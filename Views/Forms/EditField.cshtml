@@ -1,0 +1,276 @@
+@model techNL_Forms_app.Models.FormField
+
+@{
+    ViewData["Title"] = "Edit Field";
+    // Use a counter to generate sequential indices for model binding.
+    int optionIndex = 0;
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Edit Field</h2>
+
+    <form asp-action="EditField" method="post">
+        <input type="hidden" asp-for="FieldId" />
+        <input type="hidden" asp-for="FormId" />
+        <input type="hidden" asp-for="FieldType" />
+
+        <div class="mb-3">
+            <label asp-for="Label" class="form-label">Label (Frontend Display)</label>
+            <input asp-for="Label" class="form-control" required />
+            <span asp-validation-for="Label" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FieldName" class="form-label">Field Name (Backend/Database)</label>
+            <input asp-for="FieldName" class="form-control" required />
+            <span asp-validation-for="FieldName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Order" class="form-label">Display Order</label>
+            <input asp-for="Order" type="number" class="form-control" required />
+            <span asp-validation-for="Order" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+            <label asp-for="IsRequired" class="form-check-label">Required Field</label>
+        </div>
+
+        @if (Model.FieldType.ToLower() is "dropdown" or "select" or "radio" or "checkbox" or "multiplechoice" or "checkboxes")
+        {
+            <div class="mb-3">
+                <label class="form-label">Field Options</label>
+                <div id="optionsContainer">
+                    @if (Model.Options != null && Model.Options.Any())
+                    {
+                        foreach (var option in Model.Options.OrderBy(o => o.Order))
+                        {
+                            <div class="option-row mb-2 border p-2">
+                                <!-- Hidden index for model binding -->
+                                <input type="hidden" name="Options.index" value="@optionIndex" />
+                                <!-- Hidden OptionId so we know if this option exists -->
+                                <input type="hidden" name="Options[@optionIndex].OptionId" value="@option.OptionId" />
+                                <!-- Hidden Order value to preserve the sequence -->
+                                <input type="hidden" name="Options[@optionIndex].Order" value="@optionIndex" />
+
+                                <div class="mb-2">
+                                    <label class="form-label">Option Value</label>
+                                    <input type="text"
+                                           name="Options[@optionIndex].OptionValue"
+                                           value="@option.OptionValue"
+                                           class="form-control"
+                                           placeholder="Option Value"
+                                           required />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Option Label</label>
+                                    <input type="text"
+                                           name="Options[@optionIndex].OptionLabel"
+                                           value="@option.OptionLabel"
+                                           class="form-control"
+                                           placeholder="Option Label"
+                                           required />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Order</label>
+                                    <input type="number"
+                                           name="Options[@optionIndex].Order"
+                                           value="@option.Order"
+                                           class="form-control"
+                                           required />
+                                </div>
+                                <button type="button" class="btn btn-outline-danger remove-option">
+                                    <i class="bi bi-x"></i> Remove
+                                </button>
+                            </div>
+                            optionIndex++;
+                        }
+                    }
+                </div>
+                <button type="button" class="btn btn-outline-secondary mt-2" id="addOption">
+                    <i class="bi bi-plus"></i> Add Option
+                </button>
+            </div>
+        }
+
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.FormId" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-primary float-end">
+                <i class="bi bi-check"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script>
+        $(document).ready(function() {
+            // Initialize the counter based on the number of existing options.
+            let optionCounter = @((Model.Options?.Count() ?? 0));
+
+            $('#addOption').click(function() {
+                const newOption = `
+                    <div class="option-row mb-2 border p-2">
+                        <input type="hidden" name="Options.index" value="${optionCounter}" />
+                        <div class="input-group flex-column">
+                            <!-- New options have OptionId set to 0 -->
+                            <input type="hidden" name="Options[${optionCounter}].OptionId" value="0" />
+                            <input type="hidden" name="Options[${optionCounter}].Order" value="${optionCounter}" />
+
+                            <div class="mb-2">
+                                <label class="form-label">Option Value</label>
+                                <input type="text"
+                                       name="Options[${optionCounter}].OptionValue"
+                                       class="form-control"
+                                       placeholder="Option Value"
+                                       required />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Option Label</label>
+                                <input type="text"
+                                       name="Options[${optionCounter}].OptionLabel"
+                                       class="form-control"
+                                       placeholder="Option Label"
+                                       required />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Order</label>
+                                <input type="number"
+                                       name="Options[${optionCounter}].Order"
+                                       class="form-control"
+                                       placeholder="Order"
+                                       required />
+                            </div>
+                            <button type="button" class="btn btn-outline-danger remove-option">
+                                <i class="bi bi-x"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $('#optionsContainer').append(newOption);
+                optionCounter++;
+            });
+
+            $(document).on('click', '.remove-option', function() {
+                $(this).closest('.option-row').remove();
+            });
+        });
+    </script>
+}
+
+
+@* @model techNL_Forms_app.Models.FormField
+
+@{
+    ViewData["Title"] = "Edit Field";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Edit Field</h2>
+
+    <form asp-action="EditField" method="post">
+        <input type="hidden" asp-for="FieldId" />
+        <input type="hidden" asp-for="FormId" />
+        <input type="hidden" asp-for="FieldType" />
+
+        <div class="mb-3">
+            <label asp-for="Label" class="form-label">Label</label>
+            <input asp-for="Label" class="form-control" required />
+            <span asp-validation-for="Label" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FieldName" class="form-label">Field Name</label>
+            <input asp-for="FieldName" class="form-control" required />
+            <span asp-validation-for="FieldName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Order" class="form-label">Display Order</label>
+            <input asp-for="Order" type="number" class="form-control" required />
+            <span asp-validation-for="Order" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+            <label asp-for="IsRequired" class="form-check-label">Required Field</label>
+        </div>
+
+        @if (Model.FieldType.ToLower() is "dropdown" or "select" or "radio" or "checkbox" or "multiplechoice" or "checkboxes")
+        {
+            <div class="mb-3">
+                <label class="form-label">Field Options</label>
+                <div id="optionsContainer">
+                    @if (Model.Options != null && Model.Options.Any())
+                    {
+                        @foreach (var option in Model.Options.OrderBy(o => o.Order))
+                        {
+                            <div class="option-row mb-2">
+                                <div class="input-group">
+                                    <input type="text" 
+                                           name="options[@(option.Order)].OptionLabel" 
+                                           value="@option.OptionLabel" 
+                                           class="form-control" 
+                                           placeholder="Option Label" 
+                                           required />
+                                    <button type="button" class="btn btn-outline-danger remove-option">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <button type="button" class="btn btn-outline-secondary mt-2" id="addOption">
+                    <i class="bi bi-plus"></i> Add Option
+                </button>
+            </div>
+        }
+
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.FormId" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-primary float-end">
+                <i class="bi bi-check"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script>
+        $(document).ready(function() {
+            let optionCounter = @(Model.Options?.Count ?? 0);
+
+            $('#addOption').click(function() {
+                const newOption = `
+                    <div class="option-row mb-2">
+                        <div class="input-group">
+                            <input type="text" 
+                                   name="options[${optionCounter}].OptionLabel" 
+                                   class="form-control" 
+                                   placeholder="Option Label" 
+                                   required />
+                            <button type="button" class="btn btn-outline-danger remove-option">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                $('#optionsContainer').append(newOption);
+                optionCounter++;
+            });
+
+            $(document).on('click', '.remove-option', function() {
+                $(this).closest('.option-row').remove();
+            });
+        });
+    </script>
+} *@

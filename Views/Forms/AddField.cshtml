@@ -1,0 +1,190 @@
+﻿@model techNL_Forms_app.Models.FormField
+
+@{
+    ViewData["Title"] = "Add Field";
+    var formId = ViewBag.FormId;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-gradient text-white p-4" style="background-color: #0d6efd;">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-plus-circle-fill fs-3 me-3"></i>
+                        <div>
+                            <h3 class="card-title mb-0 fw-bold">Add Field to Form</h3>
+                            <p class="mb-0 opacity-75">Form ID: @formId</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="AddField" method="post" class="needs-validation" novalidate>
+                        <!-- Pass the form ID -->
+                        <input type="hidden" name="formId" value="@formId" />
+
+                        <!-- Field Type Selection -->
+                        <div class="mb-4">
+                            <label asp-for="FieldType" class="form-label fw-semibold">
+                                <i class="bi bi-list-task me-2 text-primary"></i>Field Type
+                            </label>
+                            <select asp-for="FieldType" class="form-select form-select-lg shadow-sm" id="FieldType">
+                                <option value="">-- Select a field type --</option>
+                                <option value="text">Short Answer</option>
+                                <option value="paragraph">Paragraph</option>
+                                <option value="email">Email</option>
+                                <option value="tel">Phone Number</option>
+                                <option value="multiplechoice">Multiple Choice</option>
+                                <option value="checkboxes">Checkboxes</option>
+                                <option value="dropdown">Dropdown</option>
+                                <option value="date">Date</option>
+                                <option value="time">Time</option>
+                            </select>
+                            <span asp-validation-for="FieldType" class="text-danger mt-1 small"></span>
+                        </div>
+
+                        <!-- Field Label -->
+                        <div class="mb-4">
+                            <label asp-for="Label" class="form-label fw-semibold">
+                                <i class="bi bi-tag me-2 text-primary"></i>Field Label (Frontend Display)
+                            </label>
+                            <input asp-for="Label" class="form-control form-control-lg shadow-sm" placeholder="Enter field label that will be shown to users" />
+                            <span asp-validation-for="Label" class="text-danger mt-1 small"></span>
+                        </div>
+
+                        <!-- Field Name -->
+                        <div class="mb-4">
+                            <label asp-for="FieldName" class="form-label fw-semibold">
+                                <i class="bi bi-code-slash me-2 text-primary"></i>Field Name (Backend/Database)
+                            </label>
+                            <input asp-for="FieldName" class="form-control form-control-lg shadow-sm" placeholder="Enter field name for database storage" />
+                            <span asp-validation-for="FieldName" class="text-danger mt-1 small"></span>
+                        </div>
+
+                        <!-- Required Checkbox -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsRequired" class="form-check-input" type="checkbox" role="switch" id="IsRequired" />
+                                <label asp-for="IsRequired" class="form-check-label fw-semibold">
+                                    <i class="bi bi-asterisk me-2 text-danger"></i>Make this field required
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Field Options (Only for multiple choice, checkboxes, or dropdown) -->
+                        <div class="mb-4" id="optionsSection" style="display: none;">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-list-ul me-2 text-primary"></i>Field Options
+                            </label>
+                            <div id="optionsContainer" class="mb-3">
+                                <div class="option mb-3">
+                                    <div class="input-group input-group-lg shadow-sm">
+                                        <span class="input-group-text bg-light border-end-0">Value</span>
+                                        <input type="text" name="options[0].OptionValue" class="form-control border-start-0" placeholder="Option Value" />
+                                    </div>
+                                    <div class="input-group input-group-lg shadow-sm mt-2">
+                                        <span class="input-group-text bg-light border-end-0">Label</span>
+                                        <input type="text" name="options[0].OptionLabel" class="form-control border-start-0" placeholder="Option Label" />
+                                    </div>
+                                    <div class="input-group input-group-lg shadow-sm mt-2">
+                                        <span class="input-group-text bg-light border-end-0">Order</span>
+                                        <input type="number" name="options[0].Order" class="form-control border-start-0" placeholder="Order" />
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="addOptionBtn" class="btn btn-outline-primary btn-lg d-flex align-items-center gap-2">
+                                <i class="bi bi-plus-circle"></i>
+                                Add Another Option
+                            </button>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-5">
+                            <a href="javascript:history.back()" class="btn btn-light btn-lg px-4 d-flex align-items-center gap-2">
+                                <i class="bi bi-arrow-left"></i>
+                                Back
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 d-flex align-items-center gap-2 ms-auto">
+                                <i class="bi bi-plus-circle"></i>
+                                Add Field
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const fieldTypeSelect = document.getElementById("FieldType");
+        const optionsSection = document.getElementById("optionsSection");
+        const addOptionBtn = document.getElementById("addOptionBtn");
+        const optionsContainer = document.getElementById("optionsContainer");
+
+        let optionCount = 1;
+
+        // Show or hide options section based on selected field type
+        fieldTypeSelect.addEventListener("change", function () {
+            const selectedValue = fieldTypeSelect.value.toLowerCase();
+            if (["multiplechoice", "checkboxes", "dropdown"].includes(selectedValue)) {
+                optionsSection.style.display = 'block';
+            } else {
+                optionsSection.style.display = 'none';
+            }
+        });
+
+        // Dynamically add more option rows
+        addOptionBtn.addEventListener("click", function () {
+            const optionDiv = document.createElement("div");
+            optionDiv.classList.add("option", "mb-3");
+            optionDiv.innerHTML = `
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h6 class="mb-0 fw-semibold">Option ${optionCount + 1}</h6>
+                    <button type="button" class="btn btn-outline-danger btn-sm ms-auto remove-option">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-light border-end-0">Value</span>
+                    <input type="text" name="options[${optionCount}].OptionValue" class="form-control border-start-0" placeholder="Option Value" />
+                </div>
+                <div class="input-group input-group-lg shadow-sm mt-2">
+                    <span class="input-group-text bg-light border-end-0">Label</span>
+                    <input type="text" name="options[${optionCount}].OptionLabel" class="form-control border-start-0" placeholder="Option Label" />
+                </div>
+                <div class="input-group input-group-lg shadow-sm mt-2">
+                    <span class="input-group-text bg-light border-end-0">Order</span>
+                    <input type="number" name="options[${optionCount}].Order" class="form-control border-start-0" placeholder="Order" />
+                </div>
+            `;
+            optionsContainer.appendChild(optionDiv);
+            optionCount++;
+        });
+
+        // Remove option
+        optionsContainer.addEventListener("click", function(e) {
+            if (e.target.classList.contains("remove-option") || e.target.parentElement.classList.contains("remove-option")) {
+                const optionDiv = e.target.closest(".option");
+                if (optionDiv) {
+                    optionDiv.remove();
+                }
+            }
+        });
+
+        // Form validation
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+}

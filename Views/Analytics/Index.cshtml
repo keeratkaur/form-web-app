@@ -1,0 +1,204 @@
+﻿@model IEnumerable<techNL_Forms_app.Models.Form>
+
+@{
+    ViewData["Title"] = "Form Analytics";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-white border-0 py-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="analytics-icon me-3">
+                                <i class="bi bi-bar-chart-line fs-3 text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-1 fs-4 fw-semibold">Select Form for Analytics</h3>
+                                <p class="text-muted mb-0">Choose a form to view detailed analytics and insights</p>
+                            </div>
+                        </div>
+                        <a asp-controller="Forms" asp-action="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-2"></i>Create New Form
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form method="get" class="mb-3 d-flex gap-2 align-items-center">
+                        <input type="text" name="search" class="form-control" placeholder="Search forms..." value="@ViewBag.Search" style="max-width: 300px;" />
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                    @if (Model.Any())
+                    {
+                        <div class="row g-4">
+                            @foreach (var form in Model)
+                            {
+                                <div class="col-md-6">
+                                    <a asp-action="Details" asp-route-uniqueLink="@form.UniqueLink" 
+                                       class="analytics-card card h-100 border-0 shadow-sm text-decoration-none">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="form-icon me-3 @(form.IsPublished ? "bg-success-subtle" : "bg-secondary-subtle")">
+                                                        <i class="bi bi-file-earmark-text fs-4 @(form.IsPublished ? "text-success" : "text-secondary")"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="card-title mb-1 text-dark">@form.Title</h5>
+                                                        <span class="badge rounded-pill @(form.IsPublished ? "bg-success-subtle text-success" : "bg-secondary-subtle text-secondary")">
+                                                            @(form.IsPublished ? "Published" : "Draft")
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <i class="bi bi-arrow-right-circle fs-4 text-primary opacity-0 arrow-icon"></i>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-6">
+                                                    <div class="analytics-stat p-3 rounded-3 bg-primary-subtle">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <i class="bi bi-eye me-2 text-primary"></i>
+                                                            <span class="text-primary fw-medium">Views</span>
+                                                        </div>
+                                                        <h4 class="mb-0 text-dark">@(form.Analytics?.TotalViews ?? 0)</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="analytics-stat p-3 rounded-3 bg-success-subtle">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <i class="bi bi-send me-2 text-success"></i>
+                                                            <span class="text-success fw-medium">Submissions</span>
+                                                        </div>
+                                                        <h4 class="mb-0 text-dark">@(form.Submissions?.Count ?? 0)</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 text-muted">
+                                                <small>
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    Last updated: @form.UpdatedAt.ToString("MMM dd, yyyy")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                        @if (ViewBag.TotalPages > 1)
+                        {
+                            <nav aria-label="Analytics pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="?page=@(ViewBag.CurrentPage - 1)&search=@ViewBag.Search">Previous</a>
+                                    </li>
+                                    @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                                            <a class="page-link" href="?page=@i&search=@ViewBag.Search">@i</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" href="?page=@(ViewBag.CurrentPage + 1)&search=@ViewBag.Search">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <div class="empty-state-icon mx-auto mb-4">
+                                    <i class="bi bi-bar-chart-line text-primary"></i>
+                                </div>
+                                <h5 class="fw-semibold mb-2">No Forms Available</h5>
+                                <p class="text-muted mb-4">Create your first form to start tracking analytics</p>
+                                <a asp-controller="Forms" asp-action="Create" class="btn btn-primary px-4 py-2">
+                                    <i class="bi bi-plus-lg me-2"></i>Create Your First Form
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .analytics-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background-color: var(--bs-primary-bg-subtle);
+        }
+
+        .form-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .analytics-card {
+            transition: all 0.2s ease-in-out;
+            border-radius: 12px;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .analytics-card:hover .arrow-icon {
+            opacity: 1 !important;
+        }
+
+        .analytics-stat {
+            height: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .analytics-card:hover .analytics-stat {
+            transform: translateY(-2px);
+        }
+
+        .arrow-icon {
+            transition: all 0.2s ease;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--bs-primary-bg-subtle);
+            font-size: 2rem;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 1em;
+        }
+
+        /* Custom color utilities */
+        .bg-primary-subtle {
+            background-color: var(--bs-primary-bg-subtle);
+        }
+
+        .bg-success-subtle {
+            background-color: var(--bs-success-bg-subtle);
+        }
+
+        .bg-secondary-subtle {
+            background-color: var(--bs-secondary-bg-subtle);
+        }
+    </style>
+}

@@ -1,0 +1,282 @@
+@model techNL_Forms_app.Models.Form
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/form-preview.css" />
+}
+
+<div class="preview-container">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-3">
+                    <div class="card-header bg-white border-0 py-4">
+                        <div class="mb-2">
+                            <h1 class="h3 mb-2">@Model.Title</h1>
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <p class="text-muted mb-0">@Model.Description</p>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <form method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="uniqueLink" value="@Model.UniqueLink" />
+                            
+                            <div class="mb-4">
+                                <label class="form-label d-flex align-items-center gap-2">
+                                    <i class="bi bi-envelope text-primary"></i>
+                                    <span class="fw-semibold">Your Email</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control ps-3 border-start-0" 
+                                           name="SubmittedBy" placeholder="Enter your email" required />
+                                </div>
+                            </div>
+
+                            @foreach (var field in Model.Fields.OrderBy(f => f.Order))
+                            {
+                                <div class="mb-4">
+                                    <label class="form-label d-flex align-items-center gap-2">
+                                        <i class="bi bi-@GetFieldTypeIcon(field.FieldType) text-primary"></i>
+                                        <span class="fw-semibold">@field.Label</span>
+                                        @if (field.IsRequired)
+                                        {
+                                            <span class="text-danger"> * </span>
+                                        }
+                                    </label>
+                                    
+                                    @switch (field.FieldType.ToLower())
+                                    {
+                                        case "text":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-type"></i>
+                                                </span>
+                                                <input type="text" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName" 
+                                                       placeholder="Enter @field.Label.ToLower()"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "textarea":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-text-paragraph"></i>
+                                                </span>
+                                                <textarea class="form-control ps-3 border-start-0" 
+                                                          name="@field.FieldName" 
+                                                          rows="4"
+                                                          placeholder="Enter @field.Label.ToLower()"
+                                                          @(field.IsRequired ? "required" : "")></textarea>
+                                            </div>
+                                            break;
+
+                                        case "number":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-123"></i>
+                                                </span>
+                                                <input type="number" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "email":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-envelope"></i>
+                                                </span>
+                                                <input type="email" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter @field.Label.ToLower()"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "password":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-key"></i>
+                                                </span>
+                                                <input type="password" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter @field.Label.ToLower()"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "date":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-calendar"></i>
+                                                </span>
+                                                <input type="date" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "time":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-clock"></i>
+                                                </span>
+                                                <input type="time" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "datetime":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-calendar-date"></i>
+                                                </span>
+                                                <input type="datetime-local" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "checkbox":
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                                <label class="form-check-label">@field.Label</label>
+                                            </div>
+                                            break;
+
+                                        case "radio":
+                                            <div class="form-check">
+                                                <input type="radio" class="form-check-input" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                                <label class="form-check-label">@field.Label</label>
+                                            </div>
+                                            break;
+
+                                        case "select":
+                                        case "dropdown":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-list"></i>
+                                                </span>
+                                                <select class="form-select ps-3 border-start-0" 
+                                                        name="@field.FieldName"
+                                                        @(field.IsRequired ? "required" : "")>
+                                                    <option value="">Select @field.Label.ToLower()</option>
+                                                    @foreach (var option in field.Options.OrderBy(o => o.Order))
+                                                    {
+                                                        <option value="@option.OptionValue">@option.OptionLabel</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            break;
+
+                                        case "file":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-file-earmark"></i>
+                                                </span>
+                                                <input type="file" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "tel":
+                                        case "phone":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-telephone"></i>
+                                                </span>
+                                                <input type="tel" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter @field.Label.ToLower()"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+
+                                        case "url":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-link-45deg"></i>
+                                                </span>
+                                                <input type="url" class="form-control ps-3 border-start-0" 
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter @field.Label.ToLower()"
+                                                       @(field.IsRequired ? "required" : "") />
+                                            </div>
+                                            break;
+                                    }
+                                </div>
+                            }
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-send me-2"></i>Submit Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
+@functions {
+    private string GetFieldTypeIcon(string fieldType)
+    {
+        return fieldType?.ToLower() switch
+        {
+            "text" => "input-cursor-text",
+            "textarea" => "text-paragraph",
+            "number" => "123",
+            "email" => "envelope",
+            "password" => "key",
+            "date" => "calendar",
+            "time" => "clock",
+            "datetime" => "calendar-date",
+            "checkbox" => "check-square",
+            "radio" => "record-circle",
+            "select" or "dropdown" => "list",
+            "file" => "file-earmark",
+            "tel" or "phone" => "telephone",
+            "url" => "link",
+            _ => "cursor"
+        };
+    }
+}

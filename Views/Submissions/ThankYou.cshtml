@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Thank You";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Thank You for Your Submission!</h2>
+                    <p class="lead text-muted mb-4">We have received your form submission successfully. Our team will review your information and get back to you if needed.</p>
+                    
+                    <div class="mt-4">
+                        <a href="https://technl.ca/" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-home me-2"></i>Return to Home
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 1rem;
+        }
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+        }
+        .text-success {
+            color: #28a745 !important;
+        }
+    </style>
+}

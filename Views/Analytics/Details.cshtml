@@ -1,0 +1,174 @@
+@model techNL_Forms_app.Models.Form
+
+@{
+    ViewData["Title"] = "Form Analytics Details";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="form-icon me-3">
+                            <i class="bi bi-bar-chart-line fs-4 text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1 fs-4 fw-semibold">Analytics for @Model.Title</h3>
+                            <p class="text-muted mb-0 small">Detailed insights and statistics</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        @if (Model.Submissions?.Any() == true)
+                        {
+                            <a asp-action="ExportSubmissions" asp-route-uniqueLink="@Model.UniqueLink" class="btn btn-success btn-sm d-flex align-items-center gap-2">
+                                <i class="bi bi-file-earmark-excel"></i> Export Submissions
+                            </a>
+                        }
+                        <a asp-controller="Forms" asp-action="Index" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2">
+                            <i class="bi bi-arrow-left"></i> Back to Forms
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <!-- Analytics Cards -->
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-primary bg-opacity-10 h-100" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows the total number of times this form was viewed.">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="form-icon me-3 bg-white">
+                                            <i class="bi bi-eye fs-4 text-primary"></i>
+                                        </div>
+                                        <h6 class="card-title mb-0">Total Views</h6>
+                                    </div>
+                                    <h2 class="mb-0">@(Model.Analytics?.TotalViews ?? 0)</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-success bg-opacity-10 h-100" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows the number of unique users who viewed this form.">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="form-icon me-3 bg-white">
+                                            <i class="bi bi-person-check fs-4 text-success"></i>
+                                        </div>
+                                        <h6 class="card-title mb-0">Unique Views</h6>
+                                    </div>
+                                    <h2 class="mb-0">@(Model.Analytics?.UniqueViews ?? 0)</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-info bg-opacity-10 h-100" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows the number of submissions received for this form.">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="form-icon me-3 bg-white">
+                                            <i class="bi bi-send-check fs-4 text-info"></i>
+                                        </div>
+                                        <h6 class="card-title mb-0">Submissions</h6>
+                                    </div>
+                                    <h2 class="mb-0">@(Model.Submissions?.Count ?? 0)</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-0 bg-warning bg-opacity-10 h-100" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows how many times the form preview link was clicked.">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="form-icon me-3 bg-white">
+                                            <i class="bi bi-link-45deg fs-4 text-warning"></i>
+                                        </div>
+                                        <h6 class="card-title mb-0">Link Clicks</h6>
+                                    </div>
+                                    <h2 class="mb-0">@(Model.Analytics?.LinkClicks ?? 0)</h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="col-12">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">
+                                        <i class="bi bi-info-circle me-2 text-primary"></i>Form Information
+                                    </h5>
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <p class="mb-2 text-muted">Status</p>
+                                            <p class="mb-0">
+                                                <span class="badge rounded-pill @(Model.IsPublished ? "bg-success" : "bg-secondary")">
+                                                    @(Model.IsPublished ? "Published" : "Draft")
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-2 text-muted">Created On</p>
+                                            <p class="mb-0">@Model.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-2 text-muted">Last Updated</p>
+                                            <p class="mb-0">@Model.UpdatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-2 text-muted">Analytics Last Updated</p>
+                                            <p class="mb-0">
+                                                @(Model.Analytics?.LastUpdated.ToLocalTime().ToString("MMM dd, yyyy HH:mm") ?? "-")
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .form-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .card {
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        .text-primary {
+            color: #0d6efd !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}

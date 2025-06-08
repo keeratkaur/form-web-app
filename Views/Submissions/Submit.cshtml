@@ -1,0 +1,513 @@
+﻿@model techNL_Forms_app.Models.Form
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/form-preview.css" />
+    <style>
+        .info-header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .info-header .responsive-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+
+        .info-header .divider {
+            margin: 20px auto;
+            width: 80%;
+            border: 0;
+            border-top: 1px solid #ccc;
+        }
+
+        .info-header .caption {
+            font-style: italic;
+            color: gray;
+            margin-bottom: 20px;
+        }
+
+        /* Textarea and character counter styles */
+        textarea.form-control {
+            min-height: 120px;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        textarea.form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        .char-count {
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        textarea.form-control:focus + .form-text .char-count {
+            color: #0d6efd;
+        }
+
+        /* Example media query for extra small devices */
+        @@media (max-width: 480px) {
+            .info-header {
+                padding: 10px;
+            }
+
+            .info-header .divider {
+                width: 90%;
+            }
+        }
+    </style>
+}
+
+<div class="preview-container">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-3">
+                    <div class="card-header bg-white border-0 py-4">
+                       @*  <div class="info-header">
+                            <img src="~/images/technl logo - rgb - horizontal.webp" style="width: 536px; height: 250px; display: block; margin: 0 auto;" />
+
+
+                            <hr />
+                            <img src="~/images/28-technl-52.webp" style="width: 656px; height: 336px; display: block; margin: 0 auto; margin-bottom: 20px;" />
+                            <p style="text-align: center; font-style: italic; color: gray;">
+                                techNL Students working at Verafin, summer 2023.
+                            </p>
+                        </div> *@
+
+                        <div class="info-header">
+                            <img src="~/images/technl logo - rgb - horizontal.webp" alt="techNL Logo" class="responsive-image" />
+                            <hr class="divider" />
+                            @if (!string.IsNullOrEmpty(Model.BannerImage))
+                            {
+                                <div class="banner-container">
+                                    <img src="@Url.Content(Model.BannerImage)" alt="Form Banner" class="responsive-image mb-3" style="max-height: 300px; object-fit: cover;" />
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.BannerDescription))
+                            {
+                                <p class="banner-description text-muted mb-4">@Model.BannerDescription</p>
+                            }
+                            <div class="mb-2 text-center">
+                                <h1 class="h3 mb-2">@Model.Title</h1>
+                                @if (!string.IsNullOrEmpty(Model.Description))
+                                {
+                                    <p class="text-muted mb-0">@Model.Description</p>
+                                }
+                            </div>
+                        </div>
+
+
+                        
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form asp-action="Submit" method="post" class="needs-validation" novalidate>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="uniqueLink" value="@Model.UniqueLink" />
+
+                            <div class="mb-4">
+                                <label class="form-label d-flex align-items-center gap-2">
+                                    <i class="bi bi-envelope text-primary"></i>
+                                    <span class="fw-semibold">Your Email</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control ps-3 border-start-0"
+                                           name="SubmittedBy" placeholder="Enter your email" required 
+                                           pattern="[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                           oninput="validateEmail(this)" />
+                                    <div class="invalid-feedback">
+                                        Please enter a valid email address (e.g., example@domain.com).
+                                    </div>
+                                </div>
+                            </div>
+
+                            @foreach (var field in Model.Fields.OrderBy(f => f.Order))
+                            {
+                                <div class="mb-4">
+                                    <label class="form-label d-flex align-items-center gap-2">
+                                        <i class="bi bi-@GetFieldTypeIcon(field.FieldType) text-primary"></i>
+                                        <span class="fw-semibold">@field.Label</span>
+                                        @if (field.IsRequired)
+                                        {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
+
+                                    @switch (field.FieldType.ToLower())
+                                    {
+                                        case "text":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-type"></i>
+                                                </span>
+                                                <input type="text" class="form-control ps-3 border-start-0"
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter @field.Label.ToLower()"
+                                                @(field.IsRequired ? "required" : "") />
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback">
+                                                        Please enter @field.Label.ToLower().
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        case "textarea":
+                                        case "paragraph":
+                                            <div class="input-group flex-column">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-end-0">
+                                                        <i class="bi bi-text-paragraph"></i>
+                                                    </span>
+                                                    <textarea class="form-control ps-3 border-start-0"
+                                                              name="@field.FieldName"
+                                                              rows="4"
+                                                              maxlength="1000"
+                                                              placeholder="Enter @field.Label.ToLower() (max 1000 characters)"
+                                                              @(field.IsRequired ? "required" : "")></textarea>
+                                                </div>
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback">
+                                                        Please enter @field.Label.ToLower().
+                                                    </div>
+                                                }
+                                                <div class="form-text d-flex justify-content-end align-items-center mt-1 small text-muted">
+                                                    <span class="char-count">0</span><span class="ms-1">/1000 characters</span>
+                                                </div>
+                                            </div>
+                                            break;
+
+                                        case "number":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-123"></i>
+                                                </span>
+                                                <input type="number" class="form-control ps-3 border-start-0"
+                                                       name="@field.FieldName"
+                                                @(field.IsRequired ? "required" : "") />
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback">
+                                                        Please enter a valid number.
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        case "email":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-envelope"></i>
+                                                </span>
+                                                <input type="email" class="form-control ps-3 border-start-0"
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter your email"
+                                                       pattern="[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                                       oninput="validateEmail(this)"
+                                                       @(field.IsRequired ? "required" : "") />
+                                                <div class="invalid-feedback">
+                                                    Please enter a valid email address (e.g., example@domain.com).
+                                                </div>
+                                            </div>
+                                            break;
+
+                                        case "date":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-calendar"></i>
+                                                </span>
+                                                <input type="date" class="form-control ps-3 border-start-0"
+                                                       name="@field.FieldName"
+                                                       max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                                @(field.IsRequired ? "required" : "") />
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback">
+                                                        Please select a date.
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        case "select":
+                                        case "dropdown":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-list"></i>
+                                                </span>
+                                                <select class="form-select ps-3 border-start-0"
+                                                        name="@field.FieldName"
+                                                @(field.IsRequired ? "required" : "")>
+                                                    <option value="">Select an option</option>
+                                                    @foreach (var option in field.Options.OrderBy(o => o.Order))
+                                                    {
+                                                        <option value="@option.OptionValue">@option.OptionLabel</option>
+                                                    }
+                                                </select>
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback">
+                                                        Please select an option.
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        case "radio":
+                                        case "multiplechoice":
+                                            <div class="ps-4">
+                                                @foreach (var option in field.Options.OrderBy(o => o.Order))
+                                                {
+                                                    <div class="form-check mb-2">
+                                                        <input type="radio" class="form-check-input"
+                                                               name="@field.FieldName"
+                                                               value="@option.OptionValue"
+                                                               id="@($"{field.FieldName}_{option.OptionValue}")"
+                                                        @(field.IsRequired ? "required" : "") />
+                                                        <label class="form-check-label"
+                                                               for="@($"{field.FieldName}_{option.OptionValue}")">
+                                                            @option.OptionLabel
+                                                        </label>
+                                                    </div>
+                                                }
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback d-block">
+                                                        Please select an option.
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        case "checkbox":
+                                        case "checkboxes":
+                                            <div class="ps-4">
+                                                @foreach (var option in field.Options.OrderBy(o => o.Order))
+                                                {
+                                                    <div class="form-check mb-2">
+                                                        <input type="checkbox" class="form-check-input"
+                                                               name="@(field.FieldName + "[]")"
+                                                               value="@option.OptionValue"
+                                                               id="@($"{field.FieldName}_{option.OptionValue}")" />
+                                                        <label class="form-check-label"
+                                                               for="@($"{field.FieldName}_{option.OptionValue}")">
+                                                            @option.OptionLabel
+                                                        </label>
+                                                    </div>
+                                                }
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback d-block">
+                                                        Please select at least one option.
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        case "tel":
+                                        case "phone":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-telephone"></i>
+                                                </span>
+                                                <input type="tel" class="form-control ps-3 border-start-0"
+                                                       name="@field.FieldName"
+                                                       placeholder="Enter your phone number"
+                                                       pattern="[0-9]{10}"
+                                                       maxlength="10"
+                                                       oninput="validatePhone(this)"
+                                                       @(field.IsRequired ? "required" : "") />
+                                                <div class="invalid-feedback">
+                                                    Please enter a valid 10-digit phone number.
+                                                </div>
+                                            </div>
+                                            break;
+
+                                        case "time":
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="bi bi-clock"></i>
+                                                </span>
+                                                <input type="time" class="form-control ps-3 border-start-0"
+                                                       name="@field.FieldName"
+                                                       @(field.IsRequired ? "required oninput=\"validateTime(this)\"" : "") />
+                                                @if (field.IsRequired)
+                                                {
+                                                    <div class="invalid-feedback">
+                                                        Please enter a time.
+                                                    </div>
+                                                }
+                                            </div>
+                                            break;
+
+                                        default:
+                                            <input type="text" class="form-control" name="@field.FieldName" placeholder="Enter value" />
+                                            break;
+                                    }
+                                </div>
+                            }
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-primary px-4 d-flex align-items-center gap-2">
+                                    <i class="bi bi-send"></i> Submit Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetFieldTypeIcon(string fieldType)
+    {
+        return fieldType?.ToLower() switch
+        {
+            "text" => "input-cursor-text",
+            "textarea" or "paragraph" => "text-paragraph",
+            "number" => "123",
+            "email" => "envelope",
+            "password" => "key",
+            "date" => "calendar",
+            "time" => "clock",
+            "datetime" => "calendar-date",
+            "checkbox" or "checkboxes" => "check-square",
+            "radio" or "multiplechoice" => "record-circle",
+            "select" or "dropdown" => "list",
+            "file" => "file-earmark",
+            "tel" or "phone" => "telephone",
+            "url" => "link",
+            _ => "cursor"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        // Bootstrap form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        // Focus the first invalid element
+                        const firstInvalid = form.querySelector(':invalid');
+                        if (firstInvalid) { firstInvalid.focus(); }
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+
+            // Add custom validation for date inputs
+            document.querySelectorAll('input[type="date"]').forEach(function(dateInput) {
+                dateInput.addEventListener('input', function(e) {
+                    const selectedDate = new Date(this.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+                    
+                    if (selectedDate > today) {
+                        this.setCustomValidity('Please select a date no later than today');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            });
+
+            // Character counter for textareas
+            document.querySelectorAll('textarea[maxlength]').forEach(function(textarea) {
+                let charCount = null;
+
+                // Try to find the .form-text element in a robust way
+                // 1. Look for the closest .input-group, then its next sibling
+                const inputGroup = textarea.closest('.input-group');
+                let formText = null;
+                if (inputGroup && inputGroup.nextElementSibling && inputGroup.nextElementSibling.classList.contains('form-text')) {
+                    formText = inputGroup.nextElementSibling;
+                } else {
+                    // 2. Fallback: look for the next .form-text sibling after the textarea itself
+                    let sibling = textarea.parentElement ? textarea.parentElement.nextElementSibling : null;
+                    while (sibling && !formText) {
+                        if (sibling.classList.contains('form-text')) {
+                            formText = sibling;
+                        } else {
+                            sibling = sibling.nextElementSibling;
+                        }
+                    }
+                    // 3. Fallback: look for any .form-text in the same parent
+                    if (!formText && textarea.parentElement) {
+                        formText = textarea.parentElement.querySelector('.form-text');
+                    }
+                }
+
+                if (formText) {
+                    charCount = formText.querySelector('.char-count');
+                }
+
+                if (charCount) {
+                    // Update initial count
+                    charCount.textContent = textarea.value.length;
+
+                    // Update count on input
+                    textarea.addEventListener('input', function() {
+                        charCount.textContent = textarea.value.length;
+                    });
+                } else {
+                    // Optional: log a warning for debugging
+                    console.warn('Character counter: .char-count element not found for textarea', textarea);
+                }
+            });
+        })();
+
+        // Email validation
+        function validateEmail(input) {
+            const emailPattern = /[a-zA-Z0-9._%+-]+@@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+            if (emailPattern.test(input.value)) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+            }
+        }
+
+        // Phone validation
+        function validatePhone(input) {
+            const phonePattern = /^[0-9]{10}$/;
+            if (phonePattern.test(input.value)) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+            }
+        }
+
+        // Time validation
+        function validateTime(input) {
+            if (input.value) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+            }
+        }
+    </script>
+}
