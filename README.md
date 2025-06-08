@@ -132,4 +132,21 @@ dotnet publish -c Release
 
 ## Support
 
-For support, please contact [owner@example.com](mailto:owner@example.com) 
+For support, please contact [owner@example.com](mailto:owner@example.com)
+
+## Screenshots
+
+### Home Page
+![Home Page](screenshots/homepage.png)
+
+### Create Form
+![Create Form](screenshots/create-form.png)
+
+### Edit Form
+![Edit Form](screenshots/edit-form.png)
+
+### Analytics
+![Analytics](screenshots/analytics.png)
+
+### Analytics View
+![Analytics View](screenshots/analytics-view.png) 
