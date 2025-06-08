@@ -1,4 +1,4 @@
-# TechNL Forms Web Application
+# Forms Web Application
 
 A modern web application for managing and processing forms, built with ASP.NET Core.
 
@@ -23,7 +23,7 @@ A modern web application for managing and processing forms, built with ASP.NET C
 1. Clone the repository:
    ```bash
    git clone [repository-url]
-   cd techNL-Forms-app
+   cd Forms-web-app
    ```
 
 2. Configure the application:
