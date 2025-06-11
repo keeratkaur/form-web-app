@@ -126,6 +126,32 @@ dotnet publish -c Release
 4. Push to the branch
 5. Create a Pull Request
 
+## License
 
+[Add your license information here]
 
+## Support
 
+For support, please contact [owner@example.com](mailto:owner@example.com)
+
+## Screenshots
+
+### Home Page
+This screenshot shows the dashboard where you can select a form for analytics, view form statistics, and create new forms.
+![Home Page](screenshots/homepage.png)
+
+### Create Form
+This screenshot displays the form creation page, where users can enter details, set dates, and add fields to a new form.
+![Create Form](screenshots/create-form.png)
+
+### Edit Form
+This screenshot shows the edit form interface, allowing users to update form details, manage fields, and configure form settings.
+![Edit Form](screenshots/edit-form.png)
+
+### Analytics
+This screenshot presents the analytics dashboard for a specific form, showing total views, unique views, submissions, and link clicks.
+![Analytics](screenshots/analytics.png)
+
+### Analytics View
+This screenshot provides a detailed view of analytics for a form, including form information, status, and last updated times.
+![Analytics View](screenshots/analytics-view.png) 
