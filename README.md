@@ -126,32 +126,27 @@ dotnet publish -c Release
 4. Push to the branch
 5. Create a Pull Request
 
-## License
 
-[Add your license information here]
-
-## Support
-
-For support, please contact [owner@example.com](mailto:owner@example.com)
 
 ## Screenshots
 
 ### Home Page
 This screenshot shows the dashboard where you can select a form for analytics, view form statistics, and create new forms.
-![Home Page](screenshots/homepage.png)
+![Screenshot 2025-05-30 155654](https://github.com/user-attachments/assets/38f14b11-2546-4940-a929-a01de59308ab)
+
 
 ### Create Form
 This screenshot displays the form creation page, where users can enter details, set dates, and add fields to a new form.
-![Create Form](screenshots/create-form.png)
+![Screenshot 2025-05-30 155711](https://github.com/user-attachments/assets/d06560f9-ccf3-4ab7-b769-97e3f4dda4e9)
 
 ### Edit Form
 This screenshot shows the edit form interface, allowing users to update form details, manage fields, and configure form settings.
-![Edit Form](screenshots/edit-form.png)
+![Screenshot 2025-05-30 155732](https://github.com/user-attachments/assets/f9944704-216c-40fc-99a2-fe5e02b986e5)
 
 ### Analytics
 This screenshot presents the analytics dashboard for a specific form, showing total views, unique views, submissions, and link clicks.
-![Analytics](screenshots/analytics.png)
+![Screenshot 2025-05-30 155750](https://github.com/user-attachments/assets/05842a7e-14bd-4ec8-b3dd-fd21b8d291cf)
 
 ### Analytics View
 This screenshot provides a detailed view of analytics for a form, including form information, status, and last updated times.
-![Analytics View](screenshots/analytics-view.png) 
+![Screenshot 2025-05-30 155804](https://github.com/user-attachments/assets/01afa04a-136f-4f3a-b752-a877cb9815f7)
