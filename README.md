@@ -126,13 +126,7 @@ dotnet publish -c Release
 4. Push to the branch
 5. Create a Pull Request
 
-## License
 
-[Add your license information here]
-
-## Support
-
-For support, please contact [owner@example.com](mailto:owner@example.com)
 
 ## Screenshots
 
